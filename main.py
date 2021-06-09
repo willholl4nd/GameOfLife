@@ -20,6 +20,7 @@ class GameOfLife:
     
     def save_to_image(self, count):
         img = Image.fromarray(self.frame1)
+        print(f'Saving {count}.jpg')
         img.save(self.name + f"/{count}.jpg")
 
     def randomize(self):
@@ -58,7 +59,7 @@ class GameOfLife:
                         self.frame1[i][j] = self.frame2[i][j]
         else:
             g = 0
-            while self.changes > math.sqrt(math.sqrt(self.height*self.width)):
+            while self.changes > max(self.height, self.width):
                 self.changes = 0
                 self.save_to_image(g) 
 
@@ -85,6 +86,7 @@ class GameOfLife:
                             self.changes += 1
                             self.frame1[i][j] = self.frame2[i][j]
                 g += 1
+                print(f'Found {self.changes} changes for {g}.png')
 
     def get_neighbor_count(self, row, col):
         count = 0
@@ -101,11 +103,11 @@ class GameOfLife:
         return i >= 0 and i < self.height and j >= 0 and j < self.width
 
     def make_video(self):
-        os.system(f"ffmpeg -i ./{self.name}/%01d.jpg -r 5 -vcodec mpeg4 -minrate 1000k -maxrate 5000k -b:v 4000k -bufsize 4000k -y ./videos/{self.name}.mp4")
+        os.system(f"ffmpeg -i ./{self.name}/%01d.jpg -r 5 -vcodec mpeg4 -y ./videos/{self.name}.mp4")
 
 
 if( __name__ == "__main__"):
     GOL = GameOfLife("test6", 500, 500)
-    GOL.randomize()
-    GOL.algorithm(useGenerations=False)
+#    GOL.randomize()
+#    GOL.algorithm(useGenerations=False)
     GOL.make_video()
