@@ -69,7 +69,7 @@ class GameOfLife:
         return i >= 0 and i < self.height and j >= 0 and j < self.width
 
     def make_video(self):
-        os.system(f"ffmpeg -r 10 -i ./{self.name}/%01d.jpg -vcodec mpeg4 -y ./videos/{self.name}.mp4")
+        os.system(f"ffmpeg -r 5 -i ./{self.name}/%01d.jpg -vcodec mpeg4 -b:v 50000k -y ./videos/{self.name}.mp4")
 
 
 if( __name__ == "__main__"):
