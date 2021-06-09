@@ -1,4 +1,5 @@
 import os
+import math
 import numpy as np
 import random
 
@@ -15,6 +16,7 @@ class GameOfLife:
         self.frame1 = np.empty((height, width, 3), dtype=np.uint8)
         self.frame2 = np.empty((height, width, 3), dtype=np.uint8)
         self.threshold = threshold
+        self.changes = 1000
     
     def save_to_image(self, count):
         img = Image.fromarray(self.frame1)
@@ -28,31 +30,61 @@ class GameOfLife:
                 else:
                     self.frame1[i][j] = black
 
-    def algorithm(self, generations = 100):
+    def algorithm(self, generations = 50, useGenerations = True):
         os.system("rm -rf test")
         os.system(f'mkdir {self.name}')
 
-        for g in range(generations):
-            self.save_to_image(g) 
+        if(useGenerations):
+            for g in range(generations):
+                self.save_to_image(g) 
 
-            for i in range(self.height):
-                for j in range(self.width):
-                    self.frame2[i][j] = white
-
-            for i in range(self.height):
-                for j in range(self.width):
-                    n_count = self.get_neighbor_count(i, j)
-                    if(n_count == 2 and np.all(self.frame1[i][j] == 0)):
-                        self.frame2[i][j] = black
-                    elif(n_count == 3):
-                        self.frame2[i][j] = black
-                    else:
+                for i in range(self.height):
+                    for j in range(self.width):
                         self.frame2[i][j] = white
 
+                for i in range(self.height):
+                    for j in range(self.width):
+                        n_count = self.get_neighbor_count(i, j)
+                        if(n_count == 2 and np.all(self.frame1[i][j] == 0)):
+                            self.frame2[i][j] = black
+                        elif(n_count == 3):
+                            self.frame2[i][j] = black
+                        else:
+                            self.frame2[i][j] = white
 
-            for i in range(self.height):
-                for j in range(self.width):
-                    self.frame1[i][j] = self.frame2[i][j]
+
+                for i in range(self.height):
+                    for j in range(self.width):
+                        self.frame1[i][j] = self.frame2[i][j]
+        else:
+            g = 0
+            while self.changes > math.sqrt(math.sqrt(self.height*self.width)):
+                self.changes = 0
+                self.save_to_image(g) 
+
+                for i in range(self.height):
+                    for j in range(self.width):
+                        self.frame2[i][j] = white
+
+                for i in range(self.height):
+                    for j in range(self.width):
+                        n_count = self.get_neighbor_count(i, j)
+                        if(n_count == 2 and np.all(self.frame1[i][j] == 0)):
+                            self.frame2[i][j] = black
+                        elif(n_count == 3):
+                            self.frame2[i][j] = black
+                        else:
+                            self.frame2[i][j] = white
+
+
+                for i in range(self.height):
+                    for j in range(self.width):
+                        if(self.frame1[i][j][0] != self.frame2[i][j][0] and
+                                self.frame1[i][j][1] != self.frame2[i][j][1] and
+                                self.frame1[i][j][1] != self.frame2[i][j][1]):
+                            self.changes += 1
+                            self.frame1[i][j] = self.frame2[i][j]
+                g += 1
 
     def get_neighbor_count(self, row, col):
         count = 0
@@ -69,11 +101,11 @@ class GameOfLife:
         return i >= 0 and i < self.height and j >= 0 and j < self.width
 
     def make_video(self):
-        os.system(f"ffmpeg -r 5 -i ./{self.name}/%01d.jpg -vcodec mpeg4 -b:v 50000k -y ./videos/{self.name}.mp4")
+        os.system(f"ffmpeg -i ./{self.name}/%01d.jpg -r 5 -vcodec mpeg4 -minrate 1000k -maxrate 5000k -b:v 4000k -bufsize 4000k -y ./videos/{self.name}.mp4")
 
 
 if( __name__ == "__main__"):
-    GOL = GameOfLife("test3", 250, 250)
+    GOL = GameOfLife("test6", 500, 500)
     GOL.randomize()
-    GOL.algorithm(50)
+    GOL.algorithm(useGenerations=False)
     GOL.make_video()
