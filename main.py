@@ -29,6 +29,7 @@ class GameOfLife:
                     self.frame1[i][j] = black
 
     def algorithm(self, generations = 100):
+        os.system("rm -rf test")
         os.system(f'mkdir {self.name}')
 
         for g in range(generations):
@@ -67,8 +68,12 @@ class GameOfLife:
     def in_bounds(self, i, j):
         return i >= 0 and i < self.height and j >= 0 and j < self.width
 
+    def make_video(self):
+        os.system("ffmpeg -hq -r 10 -i ./test/%01d.jpg -vcodec mpeg4 -y ./videos/test.mp4")
+
 
 if( __name__ == "__main__"):
-    GOL = GameOfLife("test", 100, 100)
+    GOL = GameOfLife("test2", 500, 500)
     GOL.randomize()
-    GOL.algorithm()
+    GOL.algorithm(500)
+    GOL.make_video()
