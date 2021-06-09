@@ -16,7 +16,7 @@ class GameOfLife:
         self.frame1 = np.empty((height, width, 3), dtype=np.uint8)
         self.frame2 = np.empty((height, width, 3), dtype=np.uint8)
         self.threshold = threshold
-        self.changes = 1000
+        self.changes = 10000000000000
     
     def save_to_image(self, count):
         img = Image.fromarray(self.frame1)
@@ -107,7 +107,7 @@ class GameOfLife:
 
 
 if( __name__ == "__main__"):
-    GOL = GameOfLife("test6", 500, 500)
-#    GOL.randomize()
-#    GOL.algorithm(useGenerations=False)
+    GOL = GameOfLife("test6", 1000, 1000)
+    GOL.randomize()
+    GOL.algorithm(useGenerations=False)
     GOL.make_video()
