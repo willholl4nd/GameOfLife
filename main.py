@@ -73,7 +73,7 @@ class GameOfLife:
 
 
 if( __name__ == "__main__"):
-    GOL = GameOfLife("test2", 500, 500)
+    GOL = GameOfLife("test3", 250, 250)
     GOL.randomize()
-    GOL.algorithm(500)
+    GOL.algorithm(50)
     GOL.make_video()
