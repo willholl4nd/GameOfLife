@@ -2,6 +2,8 @@ import os
 import math
 import numpy as np
 import random
+import cv2
+import glob
 
 from PIL import Image
 
@@ -13,10 +15,11 @@ class GameOfLife:
         self.name = name
         self.width = width
         self.height = height
+        self.size = (width, height)
         self.frame1 = np.empty((height, width, 3), dtype=np.uint8)
         self.frame2 = np.empty((height, width, 3), dtype=np.uint8)
         self.threshold = threshold
-        self.changes = 10000000000000
+        self.changes = 100000000
     
     def save_to_image(self, count):
         img = Image.fromarray(self.frame1)
@@ -86,7 +89,7 @@ class GameOfLife:
                             self.changes += 1
                             self.frame1[i][j] = self.frame2[i][j]
                 g += 1
-                print(f'Found {self.changes} changes for {g}.png')
+                print(f'Found {self.changes} changes for {g}.jpg')
 
     def get_neighbor_count(self, row, col):
         count = 0
@@ -102,12 +105,27 @@ class GameOfLife:
     def in_bounds(self, i, j):
         return i >= 0 and i < self.height and j >= 0 and j < self.width
 
-    def make_video(self):
-        os.system(f"ffmpeg -i ./{self.name}/%01d.jpg -r 5 -vcodec mpeg4 -y ./videos/{self.name}.mp4")
 
+    def make_video(self):
+        imgs = []
+        for f in sorted(glob.glob(f'{self.name}/*.jpg'), key=sortFunc):
+            img = cv2.imread(f)
+            height, width, layers = img.shape
+            imgs.append(img)
+
+        out = cv2.VideoWriter(f'videos/{self.name}.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 5, self.size)
+
+        for i in range(len(imgs)):
+            out.write(imgs[i])
+        out.release()
+
+
+def sortFunc(e):
+    return int(e.split(".jpg")[0].split("/")[1])
+        
 
 if( __name__ == "__main__"):
-    GOL = GameOfLife("test6", 1000, 1000)
+    GOL = GameOfLife("test1", 1000, 1000)
     GOL.randomize()
     GOL.algorithm(useGenerations=False)
     GOL.make_video()
